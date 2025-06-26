@@ -1,11 +1,9 @@
-import { IApi } from "../../types";
+import { ApiPostMethods, IApi } from "../../types";
 
 export type ApiListResponse<Type> = {
     total: number,
     items: Type[]
 };
-
-export type ApiPostMethods = 'POST' | 'PUT' | 'DELETE';
 
 export class Api implements IApi{
     readonly baseUrl: string;

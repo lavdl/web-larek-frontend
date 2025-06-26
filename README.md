@@ -60,9 +60,9 @@ interface ICard {
 ```
 interface IAppState {
 	catalog: ICard[];
-	basket: CardItem[];
+	basket: ICard[];
 	order: IOrder | null;
-	addCardToBasket(card: CardItem): void;
+	addCardToBasket(card: ICard): void;
 	clearBasket(): void;
 	deleteCard(cardId: string): void;
 	getTotal(): number;
@@ -72,7 +72,7 @@ interface IAppState {
 	validateOrder(): boolean;
 	setContactsField(field: keyof IOrderForm, value: string): void;
 	validateContacts(): boolean;
-	getBasket(): CardItem[]
+	getBasket(): ICard[]
 }
 ```
 
@@ -154,7 +154,7 @@ interface IApi {
 Методы:
 
 - `addCardToBasket` - добавить карточку в корзину
-- `clearBasket` - очистить корзину
+- `clearBasket` - очистить корзину и данные пользователя
 - `deleteCard` - удалить карточку из корзины
 - `getTotal` - получить общую сумму корзины
 - `getCount` - получить количество карточек в корзине
@@ -216,7 +216,7 @@ interface IApi {
 Внутри конструктора устанавливаются слушатели и ищутся селекторы кнопок
 
 Методы:
-
+- `handlePaymentChange` устанавливает слушатель на смену метода оплаты
 - `setTypeCard` - устанавливает тип оплаты
 - `toggleClass` - добавляет класс для нужной кнопки оплаты, чтобы ее выделить для пользователя
 - сеттер `address` - позволяет установить значение для элемента формы
@@ -260,7 +260,7 @@ interface IApi {
 Сеттеры:
 
 - `items` - отвечает за обновление содержимого корзины
-- `selected` - включает и отключает кнопку корзины
+- `disableButton` - включает и отключает кнопку корзины
 - `total` - отвечает за отображение общей суммы корзины
 
 #### Класс Page

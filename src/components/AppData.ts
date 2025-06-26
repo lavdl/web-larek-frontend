@@ -1,35 +1,32 @@
 import { Model } from './base/Model';
 import {FormErrors, IAppState, ICard, IOrder, IOrderForm} from '../types';
 
-export class CardItem extends Model<ICard> {
-	id: string;
-	description: string;
-	image: string;
-	title: string;
-	category: string;
-	price: number | null;
-}
 
 export class AppState extends Model<IAppState> {
-	cardsBasket: CardItem[] = [];
-	catalog: CardItem[];
-	order: IOrder = {
+	cardsBasket: ICard[] = [];
+	catalog: ICard[];
+	order: IOrderForm = {
 		email: '',
 		phone: '',
 		address: '',
-		total: 0,
 		payment: '',
-		items: [],
 	};
 	formErrors: FormErrors = {};
 	formErrorsContacts: FormErrors = {};
 
-	addCardToBasket(card: CardItem) {
-		this.cardsBasket = [...this.cardsBasket, card];
+	addCardToBasket(card: ICard) {
+		this.cardsBasket.push(card);
 	}
 
 	clearBasket() {
 		this.cardsBasket = [];
+		this.order = {
+		email: '',
+		phone: '',
+		address: '',
+		payment: '',
+		};
+		this.events.emit('basket:changed');
 	}
 
 	deleteCard(cardId: string) {
@@ -50,7 +47,7 @@ export class AppState extends Model<IAppState> {
 	}
 
 	setCatalog(items: ICard[]) {
-		this.catalog = items.map((item) => new CardItem(item, this.events));
+		this.catalog = items;
 		this.emitChanges('items:changed', { catalog: this.catalog });
 	}
 

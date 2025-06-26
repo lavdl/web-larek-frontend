@@ -1,6 +1,3 @@
-import { CardItem } from '../components/AppData';
-import { ApiPostMethods } from '../components/base/api';
-
 export interface ICard {
 	id: string;
 	description: string;
@@ -12,9 +9,9 @@ export interface ICard {
 
 export interface IAppState {
 	catalog: ICard[];
-	basket: CardItem[];
+	basket: ICard[];
 	order: IOrder | null;
-	addCardToBasket(card: CardItem): void;
+	addCardToBasket(card: ICard): void;
 	clearBasket(): void;
 	deleteCard(cardId: string): void;
 	getTotal(): number;
@@ -24,7 +21,7 @@ export interface IAppState {
 	validateOrder(): boolean;
 	setContactsField(field: keyof IOrderForm, value: string): void;
 	validateContacts(): boolean;
-	getBasket(): CardItem[]
+	getBasket(): ICard[]
 }
 
 export interface IOrderForm {
@@ -40,6 +37,8 @@ export interface IOrder extends IOrderForm {
 }
 
 export type FormErrors = Partial<Record<keyof IOrder, string>>;
+
+export type ApiPostMethods = 'POST' | 'PUT' | 'DELETE';
 
 export interface IApi {
 	baseUrl: string;

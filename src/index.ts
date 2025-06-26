@@ -1,5 +1,5 @@
 import { AppApi } from './components/AppApi';
-import { AppState, CardItem } from './components/AppData';
+import { AppState } from './components/AppData';
 import { Api } from './components/base/api';
 import { EventEmitter } from './components/base/events';
 import { Basket } from './components/Basket';
@@ -34,6 +34,12 @@ const successTemplate: HTMLTemplateElement = document.querySelector('#success');
 const order = new Order(cloneTemplate(orderTemplate), events);
 const contacts = new Contacts(cloneTemplate(contactsTemplate), events);
 const basket = new Basket(cloneTemplate(basketTemplate), events);
+const success = new Success(cloneTemplate(successTemplate), {
+				onClick: () => {
+					modal.close();
+					page.counter = appData.getCount();
+				},
+			});
 
 events.onAll((event) => {
 	console.log(event.eventName, event.data);
@@ -79,25 +85,20 @@ events.on('modal:close', () => {
 
 events.on('basket:open', () => {
 	page.locked = true;
-	basketUpdate();
+	modal.render({ content: basket.render() });
 });
 
-events.on('card:added', (card: CardItem) => {
+events.on('card:added', (card: ICard) => {
 	appData.addCardToBasket(card);
-	page.counter = appData.getCount();
+	events.emit('basket:changed');
 });
 
 events.on('card:delete', ({ card }: { card: string }) => {
 	appData.deleteCard(card);
-	page.counter = appData.getCount();
 	events.emit('basket:changed');
 });
 
 events.on('basket:changed', () => {
-	basketUpdate();
-});
-
-function basketUpdate() {
 	basket.items = appData.getBasket().map((card, currentIndex) => {
 		const cardBasket = new Card(cloneTemplate(cardBasketTemplate), events, {
 			onClick: () => events.emit('card:delete', { card: card.id }),
@@ -106,11 +107,10 @@ function basketUpdate() {
 		return cardBasket.render(card);
 	});
 	basket.total = appData.getTotal();
-	appData.order.total = appData.getTotal();
-	appData.order.items = appData.getBasket().map((card) => card.id);
-	basket.selected = appData.getBasket();
-	modal.render({ content: basket.render() });
-}
+	page.counter = appData.getCount();
+	basket.disableButton = appData.getBasket();
+});
+
 
 events.on('basket:checkout', () => {
 	modal.render({
@@ -123,9 +123,9 @@ events.on('basket:checkout', () => {
 	});
 });
 
-events.on('order.payment:change', (htlmButtonCard: HTMLButtonElement) => {
-	order.setTypeCard(htlmButtonCard);
-	appData.order.payment = htlmButtonCard.name;
+events.on('order.payment:change', (event: { field: string; value: string }) => {
+    order.setTypeCard(event.value);
+		appData.order.payment = event.value;
 });
 
 events.on(
@@ -170,17 +170,16 @@ events.on('formErrorsContacts:change', (errors: Partial<IOrderForm>) => {
 });
 
 events.on('contacts:submit', () => {
+	const orderData = {
+		...appData.order,
+		items: appData.getBasket().map((card) => card.id),
+		total: appData.getTotal(),
+	};
 	api
-		.orderSend(appData.order)
+		.orderSend(orderData)
 		.then((result) => {
-			const success = new Success(cloneTemplate(successTemplate), {
-				onClick: () => {
-					modal.close();
-					appData.clearBasket();
-					page.counter = appData.getCount();
-				},
-			});
 			success.total = result.total;
+			appData.clearBasket();
 			modal.render({
 				content: success.render({}),
 			});

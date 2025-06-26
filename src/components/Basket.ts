@@ -1,5 +1,5 @@
+import { ICard } from '../types';
 import { createElement, formatNumber, ensureElement } from '../utils/utils';
-import { CardItem } from './AppData';
 import { Component } from './base/component';
 import { IEvents } from './base/events';
 
@@ -22,7 +22,7 @@ export class Basket extends Component<IBasket> {
 		this.basketTotal = this.container.querySelector('.basket__price');
 		this.checkoutButton = this.container.querySelector('.basket__button');
 		this.deleteButton = this.container.querySelector('.basket__item-delete');
-
+		this.items = [];
 		this.checkoutButton.addEventListener('click', () =>
 			this.events.emit('basket:checkout')
 		);
@@ -40,7 +40,7 @@ export class Basket extends Component<IBasket> {
 		}
 	}
 
-	set selected(items: CardItem[]) {
+	set disableButton(items: ICard[]) {
 		if (items.length) {
 			this.setDisabled(this.checkoutButton, false);
 		} else {
